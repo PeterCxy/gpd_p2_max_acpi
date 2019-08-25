@@ -18,7 +18,7 @@
  *     Compiler ID      "INTL"
  *     Compiler Version 0x20160422 (538313762)
  */
-DefinitionBlock ("", "DSDT", 2, "ALASKA", "A M I ", 0x01072009)
+DefinitionBlock ("", "DSDT", 2, "ALASKA", "A M I ", 0x01072020)
 {
     External (_GPE.AL6F, MethodObj)    // 0 Arguments
     External (_GPE.HLVT, MethodObj)    // 0 Arguments
@@ -17191,7 +17191,7 @@ DefinitionBlock ("", "DSDT", 2, "ALASKA", "A M I ", 0x01072009)
             })
             Name (SBFG, ResourceTemplate ()
             {
-                GpioInt (Edge, ActiveLow, Exclusive, PullDefault, 0x0000,
+                GpioInt (Edge, ActiveHigh, Exclusive, PullDefault, 0x0000,
                     "\\_SB.PCI0.GPI0", 0x00, ResourceConsumer, ,
                     )
                     {   // Pin list
@@ -17224,6 +17224,16 @@ DefinitionBlock ("", "DSDT", 2, "ALASKA", "A M I ", 0x01072009)
                 Return (ConcatenateResTemplate (SBFB, SBFG))
             }
 
+            Name (_DSD,  Package ()
+            {
+                ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+                Package ()
+                {
+                    Package (2) {"irq-gpios", Package() {^TCSE, 0, 0, 0 }},
+                    Package (2) {"reset-gpios", Package() {^TCSE, 1, 0, 0 }},
+                }
+            })
+
             Method (_STA, 0, NotSerialized)  // _STA: Status
             {
                 Return (0x0F)
@@ -17231,15 +17241,10 @@ DefinitionBlock ("", "DSDT", 2, "ALASKA", "A M I ", 0x01072009)
 
             Method (_PS0, 0, Serialized)  // _PS0: Power State 0
             {
-                SGOV (0x02050009, Zero)
-                Sleep (0x23)
-                SGOV (0x02050009, One)
-                Sleep (0x78)
             }
 
             Method (_PS3, 0, Serialized)  // _PS3: Power State 3
             {
-                SGOV (0x02050009, Zero)
             }
 
             OperationRegion (IADR, SystemMemory, 0xFDAC0440, 0x08)
